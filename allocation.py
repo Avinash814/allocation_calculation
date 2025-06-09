@@ -105,7 +105,7 @@ def allocate_strategies(file, user_types, strategies, series):
         st.error("Error: The user settings file is empty.")
         return None, None
     except pd.errors.ParserError:
-        st.error("Error: Unable to parse the user settings file. Ensure it's a valid CSV.")
+        st.error("Error: Unable to parse the user settings file Ensure it's a valid CSV.")
         return None, None
     except Exception as e:
         st.error(f"An unexpected error occurred while reading user settings file: {e}")
@@ -137,6 +137,7 @@ def allocate_strategies(file, user_types, strategies, series):
     df_filtered = all_users_df.merge(df_filtered, on="userId", how="left").fillna({'ALLOCATION': 0})
 
     allocation_df = pd.DataFrame({'userId': user_types})
+    allocation_df['ALLOCATION'] = df_filtered['ALLOCATION']
     for strategy in strategies:
         allocation_df[strategy] = 0
 
@@ -183,30 +184,11 @@ def main():
         st.subheader("User ID to Allocation Dictionary")
         st.write(allocation_dict)
 
-        # Load aliases with fallback for missing User Alias column
-        try:
-            user_df = pd.read_csv(allocation_file, skiprows=6)
-            user_df['User ID'] = user_df['User ID'].astype(str)
-            if 'User Alias' in user_df.columns:
-                alias_dict = dict(zip(user_df['User ID'], user_df['User Alias']))
-            else:
-                st.warning("Warning: 'User Alias' column not found in user settings file. Using 'Unknown' for all aliases.")
-                alias_dict = {user: "Unknown" for user in user_types}
-        except pd.errors.EmptyDataError:
-            st.warning("Warning: User settings file is empty. Using 'Unknown' for all aliases.")
-            alias_dict = {user: "Unknown" for user in user_types}
-        except pd.errors.ParserError:
-            st.warning("Warning: Unable to parse user settings file. Using 'Unknown' for all aliases.")
-            alias_dict = {user: "Unknown" for user in user_types}
-        except Exception as e:
-            st.warning(f"Error loading alias from user settings file: {e}. Using 'Unknown' for all aliases.")
-            alias_dict = {user: "Unknown" for user in user_types}
-
         output_data = []
         for user_type in user_types:
             row_data = {
                 "userId": user_type,
-                "alias": alias_dict.get(user_type, "Unknown")
+                "ALLOCATION": allocation_df[allocation_df["userId"] == user_type]["ALLOCATION"].iloc[0] if not allocation_df[allocation_df["userId"] == user_type].empty else 0
             }
             alloc_row = allocation_df[allocation_df["userId"] == str(user_type)]
             alloc_values = {strategy: alloc_row[strategy].iloc[0] for strategy in strategies} if not alloc_row.empty else {strategy: 0 for strategy in strategies}
@@ -230,7 +212,7 @@ def main():
             
             output_data.append(row_data)
 
-        columns = ["userId", "alias"]
+        columns = ["userId", "ALLOCATION"]
         columns.extend([f"{strategy}_Match" for strategy in strategies])
         for strategy in strategies:
             columns.extend([f"{strategy}_Calculated allocation", f"{strategy}_Stoxo calculation"])
