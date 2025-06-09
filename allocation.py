@@ -151,8 +151,8 @@ def allocate_strategies(file, user_types, strategies, series):
 def main():
     st.title("Strategy Allocation Processor")
     
-    stoxo_file = st.file_uploader("Upload Strategy CSV file (e.g., 'VS10 09 JUNE 2025 STRATEGY.csv')", type=["csv"])
-    allocation_file = st.file_uploader("Upload User Settings CSV file (e.g., 'VS10 09 JUNE 2025 USERSETTINGS.csv')", type=["csv"])
+    stoxo_file = st.file_uploader("Upload Strategy CSV file ", type=["csv"])
+    allocation_file = st.file_uploader("Upload User Settings CSV file ", type=["csv"])
 
     if stoxo_file is not None and allocation_file is not None:
         stoxo_df = process_csv(stoxo_file)
