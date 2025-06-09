@@ -187,20 +187,20 @@ def main():
         try:
             user_df = pd.read_csv(allocation_file, skiprows=6)
             user_df['User ID'] = user_df['User ID'].astype(str)
-        #     if 'User Alias' in user_df.columns:
-        #         alias_dict = dict(zip(user_df['User ID'], user_df['User Alias']))
-        #     else:
-        #         st.warning("Warning: 'User Alias' column not found in user settings file. Using 'Unknown' for all aliases.")
-        #         alias_dict = {user: "Unknown" for user in user_types}
-        # except pd.errors.EmptyDataError:
-        #     st.warning("Warning: User settings file is empty. Using 'Unknown' for all aliases.")
-        #     alias_dict = {user: "Unknown" for user in user_types}
-        # except pd.errors.ParserError:
-        #     st.warning("Warning: Unable to parse user settings file. Using 'Unknown' for all aliases.")
-        #     alias_dict = {user: "Unknown" for user in user_types}
-        # except Exception as e:
-        #     st.warning(f"Error loading alias from user settings file: {e}. Using 'Unknown' for all aliases.")
-        #     alias_dict = {user: "Unknown" for user in user_types}
+            if 'User Alias' in user_df.columns:
+                alias_dict = dict(zip(user_df['User ID'], user_df['User Alias']))
+            else:
+                st.warning("Warning: 'User Alias' column not found in user settings file. Using 'Unknown' for all aliases.")
+                alias_dict = {user: "Unknown" for user in user_types}
+        except pd.errors.EmptyDataError:
+            st.warning("Warning: User settings file is empty. Using 'Unknown' for all aliases.")
+            alias_dict = {user: "Unknown" for user in user_types}
+        except pd.errors.ParserError:
+            st.warning("Warning: Unable to parse user settings file. Using 'Unknown' for all aliases.")
+            alias_dict = {user: "Unknown" for user in user_types}
+        except Exception as e:
+            st.warning(f"Error loading alias from user settings file: {e}. Using 'Unknown' for all aliases.")
+            alias_dict = {user: "Unknown" for user in user_types}
 
         output_data = []
         for user_type in user_types:
